@@ -2,3 +2,5 @@ vids-original/*
 vids-result/*
 **/__pycache__/
 *.pyc
+stats/*
+results.json
