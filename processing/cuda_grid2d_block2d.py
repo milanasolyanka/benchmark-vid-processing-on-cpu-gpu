@@ -1,10 +1,7 @@
 import numpy as np
 from numba import cuda
 
-# --------------------------------------------------------
-# CUDA ЯДРО
-# --------------------------------------------------------
-
+# CUDA kernel
 @cuda.jit
 def posterize_kernel(frames, lut):
     """
@@ -16,7 +13,7 @@ def posterize_kernel(frames, lut):
     Блоки: 2D (blockDim.x = width, blockDim.y = height)
     """
 
-    # 2D индексы пикселей
+    # 2D индексы ядер GPU
     y = cuda.blockIdx.y * cuda.blockDim.y + cuda.threadIdx.y
     x = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
 
@@ -27,7 +24,7 @@ def posterize_kernel(frames, lut):
     if x >= width or y >= height:
         return
 
-    # Для каждого кадра применяем LUT
+    #применяем LUT
     for f in range(num_frames):
         r = frames[f, y, x, 0]
         g = frames[f, y, x, 1]
@@ -38,10 +35,7 @@ def posterize_kernel(frames, lut):
         frames[f, y, x, 2] = lut[b]
 
 
-# --------------------------------------------------------
-# ХОСТ-ФУНКЦИЯ ДЛЯ ЗАПУСКА CUDA
-# --------------------------------------------------------
-
+# хост-функция
 def process_video_cuda_grid2d_block2d(frames: np.ndarray, lut: np.ndarray) -> np.ndarray:
     """
     Обрабатывает видео массив frames (N, 720, 1280, 3) на GPU с использованием:
@@ -51,7 +45,7 @@ def process_video_cuda_grid2d_block2d(frames: np.ndarray, lut: np.ndarray) -> np
     Возвращает новый массив кадров.
     """
 
-    # Проверки
+    #Проверки
     if frames.dtype != np.uint8:
         raise ValueError("frames must be uint8")
 
@@ -60,29 +54,21 @@ def process_video_cuda_grid2d_block2d(frames: np.ndarray, lut: np.ndarray) -> np
 
     num_frames, height, width, _ = frames.shape
 
-    # --------------------------------------------------------
-    # Копируем данные на устройство
-    # --------------------------------------------------------
+    #кидаем массив на VRAM
     d_frames = cuda.to_device(frames)
     d_lut = cuda.to_device(lut)
 
-    # --------------------------------------------------------
-    # Настраиваем сетку CUDA (2D grid, 2D block)
-    # --------------------------------------------------------
-    block_dim = (16, 16)     # 16x16 потоков в блоке — классика
+    # сетка cuda (2d grid, 2d block)
+    block_dim = (16, 16)     
     grid_dim = (
         (width + block_dim[0] - 1) // block_dim[0],
         (height + block_dim[1] - 1) // block_dim[1]
     )
 
-    # --------------------------------------------------------
-    # Запуск CUDA ядра
-    # --------------------------------------------------------
+    #выполняем функцию на kernels
     posterize_kernel[grid_dim, block_dim](d_frames, d_lut)
     cuda.synchronize()
 
-    # --------------------------------------------------------
-    # Возвращаем результат на CPU
-    # --------------------------------------------------------
+    #кидаем результат на RAM
     result = d_frames.copy_to_host()
     return result

@@ -1,3 +1,4 @@
 vids-original/*
 vids-result/*
 **/__pycache__/
+*.pyc
