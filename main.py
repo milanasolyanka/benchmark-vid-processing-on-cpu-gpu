@@ -1,5 +1,5 @@
 from processing import build_lut
-from processing import process_video_cuda_grid2d_block2d
+from processing import process_video_cuda_grid2d_block2d, process_video_cuda_grid3d_block2d
 from video_io import load_video, save_video
 
 def main():
@@ -13,7 +13,7 @@ def main():
 
     # обработка видоса
     lut = build_lut(n)  # создали lookup таблицы
-    result = process_video_cuda_grid2d_block2d(frames, lut)
+    result = process_video_cuda_grid3d_block2d(frames, lut)
 
     save_video(result, f"{output_path}{videos[0]}_n_{n}.mp4")
     print(f"Сохранил обработанное видео в {output_path}{videos[0]}")
