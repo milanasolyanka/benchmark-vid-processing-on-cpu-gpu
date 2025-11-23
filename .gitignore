@@ -1,2 +1,3 @@
 vids-original/*
 vids-result/*
+**/__pycache__
