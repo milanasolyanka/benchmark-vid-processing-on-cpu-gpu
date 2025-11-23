@@ -41,7 +41,12 @@ def process_video_opencl_1d(frames: np.ndarray, lut: np.ndarray) -> np.ndarray:
     flat[:, :3] = frames.reshape(-1, 3)
     flat = flat.view(np.uint32)
 
-    ctx = cl.create_some_context()
+    platforms = cl.get_platforms()
+    platform = platforms[0]                    # первая платформа
+    device = platform.get_devices()[0]         # первое устройство
+
+    ctx = cl.Context([device])
+
     queue = cl.CommandQueue(ctx)
     program = cl.Program(ctx, KERNEL_1D).build()
 
