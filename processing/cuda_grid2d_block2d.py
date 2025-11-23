@@ -71,4 +71,8 @@ def process_video_cuda_grid2d_block2d(frames: np.ndarray, lut: np.ndarray) -> np
 
     #кидаем результат на RAM
     result = d_frames.copy_to_host()
-    return result
+    return result, {
+    "block_dim": block_dim,
+    "grid_dim": grid_dim,
+    "global_threads": grid_dim[0] * grid_dim[1] * block_dim[0] * block_dim[1]
+}

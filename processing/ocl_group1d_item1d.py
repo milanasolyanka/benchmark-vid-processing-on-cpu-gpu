@@ -59,4 +59,8 @@ def process_video_opencl_1d(frames: np.ndarray, lut: np.ndarray) -> np.ndarray:
     out = flat.view(np.uint8).reshape(-1, 4)[:, :3]  
     out = out.reshape(num_frames, H, W, 3)
 
-    return out
+    return out, {
+    "block_dim": None,
+    "grid_dim": global_size,
+    "global_threads": global_size[0]
+}
