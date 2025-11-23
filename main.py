@@ -108,6 +108,7 @@ def main():
 
     # для каждого видео 
     for video_name in videos:
+        # video_name = "video1_60s"
         input_file = f"{input_path}{video_name}.mp4"
 
         print(f"\nЗагружаю видео {video_name}...")
@@ -116,6 +117,7 @@ def main():
 
         # для каждого метода
         for method_name, method_fn in processing_methods.items():
+            # method_name = "opencl_2d"
 
             print(f"\nЗапускаю обработку: {method_name} для {video_name}")
 
